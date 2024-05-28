@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= movie.title %> - Reviews
+    </title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <div class="movie-container">
+        <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.title %>" class="movie-poster">
+        <h1>
+            <%= movie.title %> (<%= movie.year %>)
+        </h1>
+        <p><strong>Director:</strong>
+            <%= movie.director %>
+        </p>
+        <p><strong>Genre:</strong>
+            <%= movie.genre %>
+        </p>
+        <p><strong>Rating:</strong>
+            <%= movie.rating %>/10
+        </p>
+        <p>
+            <%= movie.description %>
+        </p>
+
+        <h2>Reviews:</h2>
+        <% if (movie.reviews.length===0) { %>
+            <p>No reviews yet. Be the first to leave a review!</p>
+            <% } else { %>
+                <ul>
+                    <% movie.reviews.forEach(review=> { %>
+                        <li><strong>
+                                <%= review.user %>:
+                            </strong>
+                            <%= review.text %>
+                        </li>
+                        <% }); %>
+                </ul>
+                <% } %>
+
+                    <% if (user) { %>
+                        <h2>Leave a Review:</h2>
+                        <form action="/review/<%= movie.id %>" method="POST">
+                            <textarea name="review" required></textarea>
+                            <button type="submit">Submit</button>
+                        </form>
+                        <form action="/logout" method="GET">
+                            <button type="submit">Logout</button>
+                        </form>
+                        <% } else { %>
+                            <p><a href="/login">Login</a> to leave a review.</p>
+                            <% } %>
+    </div>
+</body>
+
+</html>
