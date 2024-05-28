@@ -165,6 +165,3 @@ dist
 # Ignore .env file
 .env
 
-# Ignore public/Images directory
-public/Images
-
