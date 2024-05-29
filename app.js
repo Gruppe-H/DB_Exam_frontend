@@ -20,7 +20,7 @@ app.use(session({
 
 app.set('view engine', 'ejs');
 
-// User data (for demonstration purposes, in a real app use a database)
+// User data (for demonstration purposes, in a real app use a database) - todo find users in databases
 const users = [
     { username: 'user1', password: 'password1' },
     { username: 'user2', password: 'password2' }
@@ -43,6 +43,7 @@ app.get('/', (req, res) => {
 
 app.get('/movie/:id', (req, res) => {
     const movie = all_movies.find(m => m.id === req.params.id);
+    // todo find other movie info from other databases
     if (movie) {
         res.render('movie', { movie, user: req.session.user });
     } else {
@@ -56,6 +57,7 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
+    //todo - change this to actually have some login
     const user = users.find(u => u.username === username && u.password === password);
     if (user) {
         req.session.user = user;
@@ -68,6 +70,7 @@ app.post('/login', (req, res) => {
 app.post('/review/:id', (req, res) => {
     if (req.session.user) {
         const { review } = req.body;
+        // todo -change this
         const movie = all_movies.find(m => m.id === parseInt(req.params.id));
         if (movie) {
             movie.reviews.push({ user: req.session.user.username, text: review });
