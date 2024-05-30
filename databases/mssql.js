@@ -75,7 +75,42 @@ async function getUserById(userId) {
     }
 }
 
-module.exports = { getUserById };
+async function loginUser(username, password) {
+    try {
+        await sql.connect(config);
+        const result = await sql.query`SELECT [user_id]
+        ,[username]
+        ,[email]
+        ,[first_name]
+        ,[last_name]
+        ,[payment_details]
+        ,[role_name]
+        FROM [db_exam].[dbo].[User_Role_View] 
+        WHERE username = ${username} AND password = ${password}`;
 
+        const user = result.recordset[0];
+        if (!user) {
+            return { success: false, message: 'Invalid username or password' };
+        }
 
-module.exports = { connectToMSSQL, getMovies, getUserById };
+        return {
+            success: true,
+            user: {
+                userId: user.user_id,
+                username: user.username,
+                email: user.email,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                paymentDetails: user.payment_details,
+                roleName: user.role_name
+            }
+        };
+    } catch (err) {
+        console.error('Error fetching user:', err);
+        return { success: false, message: 'Invalid username or password' };
+    } finally {
+        sql.close();
+    }
+}
+
+module.exports = { connectToMSSQL, getMovies, getUserById, loginUser };

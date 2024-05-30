@@ -1,11 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const flash = require('connect-flash');
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { connectToMSSQL } = require('./databases/mssql');
+const { connectToMSSQL, loginUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB } = require('./databases/mongodb');
 const { getAllMovies, getMovie, getMovieDetails } = require('./controllers/moviecontroller');
@@ -22,12 +23,7 @@ app.use(session({
 }));
 
 app.set('view engine', 'ejs');
-
-// User data (for demonstration purposes, in a real app use a database) - todo find users in databases
-const users = [
-    { username: 'user1', password: 'password1' },
-    { username: 'user2', password: 'password2' }
-];
+app.use(flash());
 
 // Routes
 app.get('/', async (req, res) => {
@@ -58,18 +54,20 @@ app.get('/movie/:id', async (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    res.render('login');
+    const errorMessage = req.flash('error');
+    res.render('login', { errorMessage });
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     //todo - change this to actually have some login
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-        req.session.user = user;
+    const result = await loginUser(username, password);
+    if (result.success) {
+        req.session.user = result.user;
         res.redirect('/');
     } else {
-        res.send('Invalid username or password');
+        req.flash('error', result.message);
+        res.redirect('/login');
     }
 });
 

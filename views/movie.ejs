@@ -53,9 +53,6 @@
                 <textarea name="review" required></textarea>
                 <button type="submit">Submit</button>
             </form>
-            <form action="/logout" method="GET">
-                <button type="submit">Logout</button>
-            </form>
             <% } else { %>
                 <p><a href="/login">Login</a> to leave a review.</p>
                 <% } %>
@@ -68,7 +65,7 @@
                     <% reviews.forEach(review => { %>
                         <li>
                             <strong>
-                                <%= review.user ? (review.user.role_name === "certified" ? "⭐ " : "") + review.user.username : "Guest_" + review.user_id %>: 
+                                <%= review.user ? (review.user.roleName === "certified" ? "⭐ " : "") + review.user.username : "Guest_" + review.user_id %>: 
                             </strong>
                             <%= review.review_text %>
                         </li>

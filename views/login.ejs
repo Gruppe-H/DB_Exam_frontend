@@ -21,6 +21,9 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">Login</button>
+            <% if (errorMessage.length > 0) { %>
+                <p style="color: red;"><%= errorMessage %></p>
+            <% } %>
         </form>
     </div>
 </body>
