@@ -47,6 +47,19 @@
             </ul>
         <% } %>
 
+        <% if (user) { %>
+            <h2>Leave a Review:</h2>
+            <form action="/review/<%= movie.id %>" method="POST">
+                <textarea name="review" required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+            <form action="/logout" method="GET">
+                <button type="submit">Logout</button>
+            </form>
+            <% } else { %>
+                <p><a href="/login">Login</a> to leave a review.</p>
+                <% } %>
+
         <h2>Reviews:</h2>
         <% if (reviews.length===0) { %>
             <p>No reviews yet. Be the first to leave a review!</p>
@@ -62,19 +75,6 @@
                     <% }); %>
                 </ul>
                 <% } %>
-
-                    <% if (user) { %>
-                        <h2>Leave a Review:</h2>
-                        <form action="/review/<%= movie.id %>" method="POST">
-                            <textarea name="review" required></textarea>
-                            <button type="submit">Submit</button>
-                        </form>
-                        <form action="/logout" method="GET">
-                            <button type="submit">Logout</button>
-                        </form>
-                        <% } else { %>
-                            <p><a href="/login">Login</a> to leave a review.</p>
-                            <% } %>
     </div>
 </body>
 
