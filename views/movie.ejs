@@ -12,22 +12,38 @@
 
 <body>
     <div class="movie-container">
-        <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.title %>" class="movie-poster">
+        <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.primary_title %>" class="movie-poster">
         <h1>
-            <%= movie.title %> (<%= movie.year %>)
+            <%= movie.primary_title %> (<%= movie.release_date %>)
         </h1>
         <p><strong>Director:</strong>
-            <%= movie.director %>
+            <%= director ? director.actor.name : null %>
+
+        </p>
+        <p><strong>Duration:</strong>
+            <%= movie.duration %>
+
         </p>
         <p><strong>Genre:</strong>
-            <%= movie.genre %>
+            <%= movie.genres %>
         </p>
         <p><strong>Rating:</strong>
-            <%= movie.rating %>/10
+            <%= movie.rating %>/100
         </p>
         <p>
             <%= movie.description %>
         </p>
+
+        <h2>Crew:</h2>
+        <% if (actors.length === 0) { %>
+            <p>No crew members found for this movie.</p>
+        <% } else { %>
+            <ul>
+                <% actors.forEach(actor => { %>
+                    <li><strong><%= actor.actor.name %></strong> - <%= actor.professions.join(', ') %></li>
+                <% }); %>
+            </ul>
+        <% } %>
 
         <h2>Reviews:</h2>
         <% if (movie.reviews.length===0) { %>

@@ -5,7 +5,8 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const getMovies = require('./databases/mssql')
+const getMovies = require('./databases/mssql');
+const { connectToNeo4j, getMovieActors } = require('./databases/neo4j');
 
 const app = express();
 const port = 3000;
@@ -26,7 +27,7 @@ const users = [
     { username: 'user2', password: 'password2' }
 ];
 
-let all_movies = [];
+let all_movies;
 
 // Routes
 app.get('/', (req, res) => {
@@ -41,13 +42,22 @@ app.get('/', (req, res) => {
         });
 });
 
-app.get('/movie/:id', (req, res) => {
-    const movie = all_movies.find(m => m.id === req.params.id);
-    // todo find other movie info from other databases
-    if (movie) {
-        res.render('movie', { movie, user: req.session.user });
-    } else {
-        res.status(404).send('Movie not found');
+app.get('/movie/:id', async (req, res) => {
+    try {
+        if (!all_movies) {
+            all_movies = await getMovies();
+        }
+        const movie = all_movies.find(m => m.id === req.params.id);
+        if (movie) {
+            const actors = await getMovieActors(movie.id);
+            const director = actors.find(actor => actor.professions.some(p => p === 'director'));
+            res.render('movie', { movie, actors, director, user: req.session.user });
+        } else {
+            res.status(404).send('Movie not found');
+        }
+    } catch (error) {
+        console.error('Error fetching movie actors:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -88,6 +98,15 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+const startServer = async () => {
+    try {
+        await connectToNeo4j();
+        app.listen(port, () => {
+            console.log(`Server is running on http://localhost:${port}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+    }
+};
+
+startServer();

@@ -10,15 +10,14 @@ const config = {
     database: process.env.MSSQL_DATABASE,
     options: {
         encrypt: true, // If you're on Windows Azure
-        trustServerCertificate: true 
+        trustServerCertificate: true
     }
 };
 
 async function getMovies() {
     try {
         await sql.connect(config);
-        const result = await sql.query`SELECT * FROM [db_exam].[dbo].[Movies]`;
-
+        const result = await sql.query`SELECT * FROM [db_exam].[dbo].[Movie_Genre_View]`;
         return result.recordset.map(movie => ({
             id: movie.movie_id,
             primary_title: movie.primary_title,
@@ -28,6 +27,7 @@ async function getMovies() {
             release_date: movie.release_date,
             plot_summary: movie.plot_summary,
             plot_synopsis: movie.plot_synopsis,
+            genres: movie.genres,
             reviews: []
         }));
     } catch (err) {
@@ -36,6 +36,6 @@ async function getMovies() {
     } finally {
         sql.close();
     }
-}
+};
 
 module.exports = getMovies;

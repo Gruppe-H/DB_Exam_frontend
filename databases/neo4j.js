@@ -14,12 +14,31 @@ const connectToNeo4j = async () => {
     }
 };
 
-function getDriver() {
-    return driver;
-}
-
 function getSession() {
     return driver.session();
 }
 
-module.exports = { connectToNeo4j, getDriver, getSession };
+async function getMovieActors(movieId) {
+    const session = getSession();
+    try {
+        const result = await session.run(
+            `MATCH (m:Movie {id: $movieId})<-[:KNOWN_FOR]-(a:Actor)-[:IS_A]->(p:Profession)
+            WITH a, p
+            ORDER BY p.name
+            RETURN a, collect(p.name) as professions`,
+            { movieId }
+        );
+
+        return result.records.map(record => ({
+            actor: record.get('a').properties,
+            professions: record.get('professions').map(p => p.replace(/_/g, ' '))
+        }));
+    } catch (error) {
+        console.error('Error executing query:', error);
+        throw error;
+    } finally {
+        await session.close();
+    }
+}
+
+module.exports = { connectToNeo4j, getMovieActors };
