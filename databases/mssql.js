@@ -14,6 +14,15 @@ const config = {
     }
 };
 
+const connectToMSSQL = async () => {
+    try {
+        await sql.connect(config);
+        console.log('Connected to MSSQL');
+    } catch (error) {
+        console.error('Error connecting to MSSQL:', error);
+    }
+};
+
 async function getMovies() {
     try {
         await sql.connect(config);
@@ -38,4 +47,4 @@ async function getMovies() {
     }
 };
 
-module.exports = getMovies;
+module.exports = { connectToMSSQL, getMovies };

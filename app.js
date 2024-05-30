@@ -5,8 +5,9 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const getMovies = require('./databases/mssql');
+const { connectToMSSQL, getMovies } = require('./databases/mssql');
 const { connectToNeo4j, getMovieActors } = require('./databases/neo4j');
+const { connectToMongoDB } = require('./databases/mongodb');
 
 const app = express();
 const port = 3000;
@@ -100,7 +101,9 @@ app.get('/logout', (req, res) => {
 
 const startServer = async () => {
     try {
+        await connectToMSSQL();
         await connectToNeo4j();
+        await connectToMongoDB();
         app.listen(port, () => {
             console.log(`Server is running on http://localhost:${port}`);
         });
