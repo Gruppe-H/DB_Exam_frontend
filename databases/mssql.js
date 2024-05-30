@@ -58,15 +58,21 @@ async function getUserById(userId) {
         ,[payment_details]
         ,[role_name]
         FROM [db_exam].[dbo].[User_Role_View] WHERE user_id = ${userId}`;
-        return result.recordset.map(user => ({
-            id: user.user_id,
-            username: user.username,
-            email: user.email,
-            firstName: user.first_name,
-            lastName: user.last_name,
-            paymentDetails: user.payment_details,
-            roleName: user.role_name
-        }));
+
+        const user = result.recordset[0];
+        if (user) {
+            return {
+                user_id: user.user_id,
+                username: user.username,
+                email: user.email,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                paymentDetails: user.payment_details,
+                roleName: user.role_name
+            };
+        } else {
+            return null;
+        }
     } catch (err) {
         //console.error('Error fetching user:', err);
         return null;
@@ -96,7 +102,7 @@ async function loginUser(username, password) {
         return {
             success: true,
             user: {
-                id: user.user_id,
+                user_id: user.user_id,
                 username: user.username,
                 email: user.email,
                 firstName: user.first_name,

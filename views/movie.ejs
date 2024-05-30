@@ -62,7 +62,7 @@
                     <% reviews.forEach(review => { %>
                         <li>
                             <strong>
-                                <%= review.user ? (review.user.roleName === "certified" ? "⭐ " : "") + review.user.username : "Guest_" + review.user_id %>: 
+                                <%= review.user ? review.user.username + (review.user.roleName === "certified" ? " ⭐" : "")  : "Guest_" + review.user_id %>: 
                             </strong>
                             <%= review.review_text %>
                         </li>

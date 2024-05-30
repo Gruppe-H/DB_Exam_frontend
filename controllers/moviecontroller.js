@@ -23,15 +23,16 @@ async function getMovieDetails(movie) {
     const actors = await getMovieActors(movie.id);
     const director = actors.find(actor => actor.professions.some(p => p === 'director'));
     const reviews = await getMovieReviews(movie.id);
-    // reviews.forEach(async review => { 
-    //     review.user = await getUser(review.user_id)
-    // });
+    for (const review of reviews) {
+        review.user = await getUser(review.user_id);
+    }
+
     return { movie, actors, director, reviews };
 }
 
 async function addMovieReview(review) {
     const result = await createMovieReview(review);
-    //update in-memory movies
+    //update in-memory movies - todo doesn't work
     const movie = all_movies.find(m => m.id === review.movie_id);
     if (movie) {
         movie.reviews.unshift({
@@ -46,4 +47,4 @@ async function addMovieReview(review) {
     return result;
 }
 
-module.exports = { getAllMovies, getMovie, getMovieDetails };
+module.exports = { getAllMovies, getMovie, getMovieDetails, addMovieReview };

@@ -1,6 +1,6 @@
 <form action="/review/<%= movie.id %>" method="POST">
     <input type="hidden" name="movie_id" value="<%= movie.id %>">
-    <input type="hidden" name="user_id" value="<%= user.id %>">
+    <input type="hidden" name="user_id" value="<%= user.user_id %>">
 
     <div>
         <label for="rating">Rating</label>

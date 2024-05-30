@@ -8,8 +8,8 @@ dotenv.config();
 
 const { connectToMSSQL, loginUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
-const { connectToMongoDB, createMovieReview } = require('./databases/mongodb');
-const { getAllMovies, getMovie, getMovieDetails } = require('./controllers/moviecontroller');
+const { connectToMongoDB} = require('./databases/mongodb');
+const { getAllMovies, getMovie, getMovieDetails, addMovieReview } = require('./controllers/moviecontroller');
 
 const app = express();
 const port = 3000;
@@ -84,7 +84,7 @@ app.post('/review/:id', async (req, res) => {
         };
 
         try {
-            const result = await createMovieReview(review);
+            const result = await addMovieReview(review);
             if (result.success) {
                 res.redirect(`/movie/${req.params.id}`);
             } else {
