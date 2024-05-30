@@ -8,7 +8,7 @@ dotenv.config();
 
 const { connectToMSSQL, loginUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
-const { connectToMongoDB } = require('./databases/mongodb');
+const { connectToMongoDB, createMovieReview } = require('./databases/mongodb');
 const { getAllMovies, getMovie, getMovieDetails } = require('./controllers/moviecontroller');
 
 const app = express();
@@ -60,7 +60,6 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    //todo - change this to actually have some login
     const result = await loginUser(username, password);
     if (result.success) {
         req.session.user = result.user;
@@ -71,16 +70,29 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post('/review/:id', (req, res) => {
+app.post('/review/:id', async (req, res) => {
     if (req.session.user) {
-        const { review } = req.body;
-        // todo -change this
-        const movie = all_movies.find(m => m.id === parseInt(req.params.id));
-        if (movie) {
-            movie.reviews.push({ user: req.session.user.username, text: review });
-            res.redirect(`/movie/${req.params.id}`);
-        } else {
-            res.status(404).send('Movie not found');
+        const { movie_id, user_id, rating, review_text, review_summary, is_spoiler } = req.body;
+        const review = {
+            review_date: new Date().toISOString().split('T')[0],
+            movie_id,
+            user_id,
+            review_text,
+            rating,
+            review_summary,
+            is_spoiler: is_spoiler === 'on'
+        };
+
+        try {
+            const result = await createMovieReview(review);
+            if (result.success) {
+                res.redirect(`/movie/${req.params.id}`);
+            } else {
+                res.status(404).send('Movie not found');
+            }
+        } catch (error) {
+            console.error('Error adding review:', error);
+            res.status(500).send('Internal Server Error');
         }
     } else {
         res.send('You must be logged in to leave a review');

@@ -1,6 +1,6 @@
 const { getMovies } = require('../databases/mssql');
 const { getMovieActors } = require('../databases/neo4j');
-const { getMovieReviews } = require('../databases/mongodb');
+const { getMovieReviews, createMovieReview } = require('../databases/mongodb');
 const getUser = require('./usercontroller');
 
 let all_movies;
@@ -27,6 +27,23 @@ async function getMovieDetails(movie) {
     //     review.user = await getUser(review.user_id)
     // });
     return { movie, actors, director, reviews };
+}
+
+async function addMovieReview(review) {
+    const result = await createMovieReview(review);
+    //update in-memory movies
+    const movie = all_movies.find(m => m.id === review.movie_id);
+    if (movie) {
+        movie.reviews.unshift({
+            user_id,
+            review_date,
+            review_text,
+            rating,
+            review_summary,
+            is_spoiler
+        });
+    }
+    return result;
 }
 
 module.exports = { getAllMovies, getMovie, getMovieDetails };

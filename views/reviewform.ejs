@@ -1,0 +1,26 @@
+<form action="/review/<%= movie.id %>" method="POST">
+    <input type="hidden" name="movie_id" value="<%= movie.id %>">
+    <input type="hidden" name="user_id" value="<%= user.id %>">
+
+    <div>
+        <label for="rating">Rating</label>
+        <input type="number" id="rating" name="rating" min="10" max="100" required>
+    </div>
+
+    <div>
+        <label for="review_summary">Review Summary</label>
+        <input type="text" id="review_summary" name="review_summary" required>
+    </div>
+
+    <div>
+        <label for="review_text">Review Text</label>
+        <textarea id="review_text" name="review_text" required></textarea>
+    </div>
+
+    <div>
+        <label for="is_spoiler">Does your review contain spoilers?</label>
+        <input type="checkbox" id="is_spoiler" name="is_spoiler">
+    </div>
+
+    <button type="submit">Submit</button>
+</form>

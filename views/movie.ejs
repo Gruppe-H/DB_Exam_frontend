@@ -49,10 +49,7 @@
 
         <% if (user) { %>
             <h2>Leave a Review:</h2>
-            <form action="/review/<%= movie.id %>" method="POST">
-                <textarea name="review" required></textarea>
-                <button type="submit">Submit</button>
-            </form>
+            <%- include('reviewform', { movie: movie, user: user }) %>
             <% } else { %>
                 <p><a href="/login">Login</a> to leave a review.</p>
                 <% } %>

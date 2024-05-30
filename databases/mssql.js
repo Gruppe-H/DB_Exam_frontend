@@ -59,7 +59,7 @@ async function getUserById(userId) {
         ,[role_name]
         FROM [db_exam].[dbo].[User_Role_View] WHERE user_id = ${userId}`;
         return result.recordset.map(user => ({
-            userId: user.user_id,
+            id: user.user_id,
             username: user.username,
             email: user.email,
             firstName: user.first_name,
@@ -96,7 +96,7 @@ async function loginUser(username, password) {
         return {
             success: true,
             user: {
-                userId: user.user_id,
+                id: user.user_id,
                 username: user.username,
                 email: user.email,
                 firstName: user.first_name,
