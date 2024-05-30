@@ -5,9 +5,10 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { connectToMSSQL, getMovies } = require('./databases/mssql');
-const { connectToNeo4j, getMovieActors } = require('./databases/neo4j');
+const { connectToMSSQL } = require('./databases/mssql');
+const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB } = require('./databases/mongodb');
+const { getAllMovies, getMovie, getMovieDetails } = require('./controllers/moviecontroller');
 
 const app = express();
 const port = 3000;
@@ -28,36 +29,30 @@ const users = [
     { username: 'user2', password: 'password2' }
 ];
 
-let all_movies;
-
 // Routes
-app.get('/', (req, res) => {
-    getMovies()
-        .then(movies => {
-            all_movies = movies;
-            res.render('index', { movies, user: req.session.user });
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            res.status(500).send('Internal Server Error');
-        });
+app.get('/', async (req, res) => {
+    try {
+        movies = await getAllMovies();
+        res.render('index', { movies, user: req.session.user });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 app.get('/movie/:id', async (req, res) => {
     try {
-        if (!all_movies) {
-            all_movies = await getMovies();
-        }
-        const movie = all_movies.find(m => m.id === req.params.id);
+        const movieId = req.params.id;
+        const movie = await getMovie(movieId);
+
         if (movie) {
-            const actors = await getMovieActors(movie.id);
-            const director = actors.find(actor => actor.professions.some(p => p === 'director'));
-            res.render('movie', { movie, actors, director, user: req.session.user });
+            const movieDetails = await getMovieDetails(movie);
+            res.render('movie', { ...movieDetails, user: req.session.user });
         } else {
             res.status(404).send('Movie not found');
         }
     } catch (error) {
-        console.error('Error fetching movie actors:', error);
+        console.error('Error fetching movie data:', error);
         res.status(500).send('Internal Server Error');
     }
 });

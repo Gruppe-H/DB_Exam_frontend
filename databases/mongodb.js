@@ -14,13 +14,18 @@ const connectToMongoDB = async () => {
     }
 };
 
-function getClient() {
-    return client;
+const database = client.db(process.env.MONGODB_DATABASE);
+
+async function getMovieReviews(movieId) {
+    try {
+        const collection = database.collection(process.env.MONGODB_REVIEW_COLLECTION);
+        const reviews = await collection.find({ movie_id: movieId }).toArray();
+        return reviews;
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        return [];
+    }
 }
 
-function getCollection() {
-    const database = client.db(process.env.MONGODB_DATABASE);
-    return database.collection(process.env.MONGODB_REVIEW_COLLECTION); //TODO
-}
 
-module.exports = { connectToMongoDB, getClient, getCollection };
+module.exports = { connectToMongoDB, getMovieReviews };

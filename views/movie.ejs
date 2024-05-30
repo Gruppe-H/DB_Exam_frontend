@@ -35,28 +35,31 @@
         </p>
 
         <h2>Crew:</h2>
-        <% if (actors.length === 0) { %>
+        <% if (actors.length===0) { %>
             <p>No crew members found for this movie.</p>
-        <% } else { %>
-            <ul>
-                <% actors.forEach(actor => { %>
-                    <li><strong><%= actor.actor.name %></strong> - <%= actor.professions.join(', ') %></li>
+            <% } else { %>
+                <ul>
+                    <% actors.forEach(actor=> { %>
+                        <li><strong>
+                                <%= actor.actor.name %>
+                            </strong> - <%= actor.professions.join(', ') %></li>
                 <% }); %>
             </ul>
         <% } %>
 
         <h2>Reviews:</h2>
-        <% if (movie.reviews.length===0) { %>
+        <% if (reviews.length===0) { %>
             <p>No reviews yet. Be the first to leave a review!</p>
             <% } else { %>
                 <ul>
-                    <% movie.reviews.forEach(review=> { %>
-                        <li><strong>
-                                <%= review.user %>:
+                    <% reviews.forEach(review => { %>
+                        <li>
+                            <strong>
+                                <%= review.user ? (review.user.role_name === "certified" ? "⭐ " : "") + review.user.username : "Guest_" + review.user_id %>: 
                             </strong>
-                            <%= review.text %>
+                            <%= review.review_text %>
                         </li>
-                        <% }); %>
+                    <% }); %>
                 </ul>
                 <% } %>
 
