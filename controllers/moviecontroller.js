@@ -1,6 +1,7 @@
 const { getMovies, sortMovies } = require('../databases/mssql');
 const { getMovieActors } = require('../databases/neo4j');
-const { createMovieReview, getSelectionSpoilerFreeMovieReviews, getAllMovieReviews, getRegionalTitles } = require('../databases/mongodb');
+const { createMovieReview, deleteMovieReview, getSelectionSpoilerFreeMovieReviews, 
+    getAllMovieReviews, getRegionalTitles } = require('../databases/mongodb');
 const getUser = require('./usercontroller');
 
 let all_movies;
@@ -60,22 +61,26 @@ async function getMovieReviews(movie) {
 
 async function addMovieReview(review) {
     const result = await createMovieReview(review);
-    //update in-memory movies - todo doesn't work
+    //update in-memory movies 
     const movie = all_movies.find(m => m.id === review.movie_id);
     if (movie) {
-        movie.reviews.unshift({
-            user_id: review.user_id,
-            review_date: review.review_date,
-            review_text: review.review_text,
-            rating: review.rating,
-            review_summary: review.review_summary,
-            is_spoiler: review.is_spoiler
-        });
+        movie.reviews.unshift(review);
     }
+    return result;
+}
+
+async function removeMovieReview(reviewId, movieId) {
+    const result = await deleteMovieReview(reviewId);
+    // Update in-memory movies 
+    const movie = all_movies.find(m => m.id === movieId);
+    if (movie) {
+        movie.reviews = movie.reviews.filter(review => review.id !== reviewId);
+    }
+
     return result;
 }
 
 module.exports = {
     getAllMovies, getMovie, getMovieDetails,
-    getMovieReviews, addMovieReview, getAllRegionalMovies
+    getMovieReviews, addMovieReview, getAllRegionalMovies, removeMovieReview
 };

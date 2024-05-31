@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
+const methodOverride = require('method-override');
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -9,7 +10,8 @@ dotenv.config();
 const { connectToMSSQL, loginUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
-const { getAllMovies, getAllRegionalMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview } = require('./controllers/moviecontroller');
+const { getAllMovies, getAllRegionalMovies, getMovie,
+    getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview } = require('./controllers/moviecontroller');
 
 const app = express();
 const port = 3000;
@@ -24,6 +26,7 @@ app.use(session({
 
 app.set('view engine', 'ejs');
 app.use(flash());
+app.use(methodOverride('_method'));
 
 // Routes
 app.get('/', async (req, res) => {
@@ -105,6 +108,27 @@ app.get('/review/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching movie reviews:', error);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+app.delete('/review/:id', async (req, res) => {
+    if (req.session.user) {
+        const movieId = req.params.id;
+        const reviewId = req.body.review_id;
+
+        try {
+            const result = await removeMovieReview(reviewId, movieId);
+            if (result.success) {
+                res.redirect(`/movie/${req.params.id}`);
+            } else {
+                res.status(404).send('Movie not found');
+            }
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    } else {
+        res.send('You must be logged in as admin to delete a review');
     }
 });
 

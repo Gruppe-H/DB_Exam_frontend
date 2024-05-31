@@ -15,14 +15,7 @@
         <h1>
             <%= movie.primary_title %> (<%= movie.release_date %>)
         </h1>
-
-        <% if (user) { %>
-            <h2>Leave a Review:</h2>
-            <%- include('reviewform', { movie: movie, user: user }) %>
-            <% } else { %>
-                <p><a href="/login">Login</a> to leave a review.</p>
-                <% } %>
-
+        
         <%- include('review', { movie: movie, user: user, reviews: reviews, from_movie_page: false }) %>
     </div>
 </body>
