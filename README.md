@@ -22,7 +22,8 @@ MONGODB_DATABASE=db_exam
 MONGODB_REVIEW_COLLECTION=reviews
 MONGODB_TITLE_COLLECTION=extra_titles
 
-SESSION_SECRET=<your_secret> ``` 
+SESSION_SECRET=<your_secret>
+``` 
 
 ## To run the program:
 Run: 
