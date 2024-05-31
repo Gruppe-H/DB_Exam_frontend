@@ -119,4 +119,17 @@ async function loginUser(username, password) {
     }
 }
 
-module.exports = { connectToMSSQL, getMovies, getUserById, loginUser };
+async function sortMovies(sortBy, movies) {
+    switch (sortBy) {
+        case 'title':
+            return movies.sort((a, b) => a.primary_title.localeCompare(b.primary_title));
+        case 'rating':
+            return movies.sort((a, b) => a.rating - b.rating);
+        case 'release_date':
+            return movies.sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
+        default:
+            return movies;
+    }
+}
+
+module.exports = { connectToMSSQL, getMovies, getUserById, loginUser, sortMovies };

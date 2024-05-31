@@ -19,19 +19,27 @@
 
         <p><a href="/region">Choose region</a></p>
 
-        <!-- Movie grid -->
-        <div class="movie-grid">
-            <% movies.forEach(movie=> { %>
-            <div class="movie-box">
-                <a href="/movie/<%= movie.id %>">
-                    <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.primary_title %>">
-                    <h2>
-                        <%= movie.primary_title %> (<%= movie.release_date %>)
-                    </h2>
-                </a>
-            </div>
-            <% }); %>
-        </div>
+                <!-- Sorting form without dropdown-->
+                <form action="/" method="get">
+                    <label for="sort">Sort by:</label>
+                    <button type="submit" name="sort" value="primary_title">Title</button>
+                    <button type="submit" name="sort" value="release_date">Release Date</button>
+                    <button type="submit" name="sort" value="rating">Rating</button>
+                </form>
+
+                    <!-- Movie grid -->
+                    <div class="movie-grid">
+                        <% movies.forEach(movie=> { %>
+                            <div class="movie-box">
+                                <a href="/movie/<%= movie.id %>">
+                                    <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.primary_title %>">
+                                    <h2>
+                                        <%= movie.primary_title %> (<%= movie.release_date %>)
+                                    </h2>
+                                </a>
+                            </div>
+                            <% }); %>
+                    </div>
     </div>
 </body>
 
