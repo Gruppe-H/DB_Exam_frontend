@@ -23,6 +23,17 @@
                 <p><a href="/sort/release">Sort on release date</a></p>
                 <p><a href="/sort/title">Sort on title</a></p>
 
+            
+            <!-- search form -->
+            <form action="/search" method="GET">
+                <div> 
+                    <label for="search">Search</label>
+                    <input type="text" id="search" name="search" required>
+                </div>
+                <button type="submit">Search</button>
+            </form>
+
+
                     <!-- Movie grid -->
                     <div class="movie-grid">
                         <% movies.forEach(movie=> { %>

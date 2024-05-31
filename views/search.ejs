@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+    <!-- Display search results -->
+    <div id="search-results">
+        <% if (movies.length > 0) { %>
+            <% movies.forEach(movie => { %>
+                <div class="movie">
+                    <h2><%= movie.primary_title %></h2>
+                    <p><%= movie.plot_summary %></p>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No movies found.</p>
+        <% } %>
+    </div>
+</body>
+</html>

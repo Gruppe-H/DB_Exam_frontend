@@ -132,4 +132,29 @@ async function sortMovies(sortBy, movies) {
     }
 }
 
-module.exports = { connectToMSSQL, getMovies, getUserById, loginUser, sortMovies };
+async function searchMovieByTitle(title) {
+    try {
+        await sql.connect(config);
+        const result = await sql.query`SELECT * FROM [db_exam].[dbo].[Movie_Genre_View] WHERE primary_title LIKE ${'%' + title + '%'}`;
+        return result.recordset.map(movie => ({
+            id: movie.movie_id,
+            primary_title: movie.primary_title,
+            original_title: movie.original_title,
+            duration: movie.duration,
+            rating: movie.rating,
+            release_date: movie.release_date,
+            plot_summary: movie.plot_summary,
+            plot_synopsis: movie.plot_synopsis,
+            genres: movie.genres,
+            reviews: []
+        }));
+    } catch (err) {
+        console.error('Error searching for movie by title:', err);
+        return [];
+    } finally {
+        sql.close();
+    }
+}
+
+
+module.exports = { connectToMSSQL, getMovies, getUserById, loginUser, sortMovies, searchMovieByTitle };

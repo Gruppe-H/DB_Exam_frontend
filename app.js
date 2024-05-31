@@ -6,7 +6,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { connectToMSSQL, loginUser } = require('./databases/mssql');
+const { connectToMSSQL, loginUser, searchMovieByTitle} = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
 const { getAllMovies, getAllRegionalMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview } = require('./controllers/moviecontroller');
@@ -155,6 +155,25 @@ app.get('/sort/:type', async (req, res) => {
         res.render('index', { movies, user: req.session.user });
     } catch (error) {
         console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// New route for searching movies by title
+app.get('/search', async (req, res) => {
+    console.log('Search query:', req.query);
+    try {
+        const title = req.query.search;
+        console.log('Title:', title);
+        if (!title) {
+            res.render('search', { movies: [], user: req.session.user });
+            return;
+        }
+
+        const movies = await searchMovieByTitle(title);
+        res.render('index', { movies, user: req.session.user });
+    } catch (error) {
+        console.error('Error searching for movies:', error);
         res.status(500).send('Internal Server Error');
     }
 });
