@@ -47,6 +47,27 @@ async function getMovies() {
     }
 };
 
+async function getUsers() {
+    try {
+        await sql.connect(config);
+        const result = await sql.query`SELECT [user_id]
+        ,[username]
+        ,[role_name]
+        FROM [db_exam].[dbo].[User_Role_View]`;
+
+        return result.recordset.map(user => ({
+            user_id: user.user_id,
+            username: user.username,
+            roleName: user.role_name
+        }));
+    } catch (err) {
+        //console.error('Error fetching user:', err);
+        return null;
+    } finally {
+        sql.close();
+    }
+}
+
 async function getUserById(userId) {
     try {
         await sql.connect(config);
@@ -119,23 +140,32 @@ async function loginUser(username, password) {
     }
 }
 
-async function sortMovies(sortBy, movies) {
-    switch (sortBy) {
-        case 'title':
-            return movies.sort((a, b) => a.primary_title.localeCompare(b.primary_title));
-        case 'rating':
-            return movies.sort((a, b) => a.rating - b.rating);
-        case 'release_date':
-            return movies.sort((a, b) => new Date(a.release_date) - new Date(b.release_date));
-        default:
-            return movies;
+async function updateUser(userId, newRole) {
+    try {
+        await sql.connect(config);
+        const result = await sql.query`
+            UPDATE [db_exam].[dbo].[User_Role_View]
+            SET role_name = ${newRole}
+            WHERE user_id = ${userId}`;
+
+        if (result.rowsAffected[0] === 1) {
+            return { success: true, message: 'User role updated successfully' };
+        }
+
+        return { success: false, message: 'User not found or no changes made' };
+    } catch (err) {
+        console.error('Error updating user role:', err);
+        return { success: false, message: 'Error updating user role' };
+    } finally {
+        sql.close();
     }
 }
 
 async function searchMovieByTitle(title) {
     try {
         await sql.connect(config);
-        const result = await sql.query`SELECT * FROM [db_exam].[dbo].[Movie_Genre_View] WHERE primary_title LIKE ${'%' + title + '%'}`;
+        const result = await sql.query`SELECT * FROM [db_exam].[dbo].[Movie_Genre_View] 
+        WHERE primary_title LIKE ${'%' + title + '%'}`;
         return result.recordset.map(movie => ({
             id: movie.movie_id,
             primary_title: movie.primary_title,
@@ -157,4 +187,4 @@ async function searchMovieByTitle(title) {
 }
 
 
-module.exports = { connectToMSSQL, getMovies, getUserById, loginUser, sortMovies, searchMovieByTitle };
+module.exports = { connectToMSSQL, getMovies, getUserById, loginUser, searchMovieByTitle, getUsers, updateUser };

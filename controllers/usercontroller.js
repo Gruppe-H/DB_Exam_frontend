@@ -1,5 +1,10 @@
 const { getMovieReviewsByUser } = require('../databases/mongodb');
-const { getUserById } = require('../databases/mssql');
+const { getUserById, getUsers } = require('../databases/mssql');
+
+async function getAllUsers() {
+    const users = await getUsers();
+    return users;
+}
 
 async function getUser(userId) {
     const user = await getUserById(userId);
@@ -14,4 +19,4 @@ async function getUserReviews(user) {
     return reviews;
 }
 
-module.exports = { getUser, getUserReviews };
+module.exports = { getUser, getUserReviews, getAllUsers };

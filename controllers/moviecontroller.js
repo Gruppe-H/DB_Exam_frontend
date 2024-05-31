@@ -1,4 +1,4 @@
-const { getMovies, sortMovies } = require('../databases/mssql');
+const { getMovies } = require('../databases/mssql');
 const { getMovieActors } = require('../databases/neo4j');
 const { createMovieReview, deleteMovieReview, getSelectionSpoilerFreeMovieReviews,
     getAllMovieReviews, getRegionalTitles } = require('../databases/mongodb');
@@ -6,13 +6,9 @@ const { getUser } = require('./usercontroller');
 
 let all_movies;
 
-async function getAllMovies(sortBy) {
+async function getAllMovies() {
     if (!all_movies) {
         all_movies = await getMovies();
-    }
-
-    if (sortBy) {
-        all_movies = await sortMovies(sortBy, all_movies);
     }
 
     return all_movies;

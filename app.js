@@ -7,12 +7,12 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { connectToMSSQL, loginUser, searchMovieByTitle } = require('./databases/mssql');
+const { connectToMSSQL, loginUser, searchMovieByTitle, updateUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
 const { getAllMovies, getAllRegionalMovies, getMovie,
     getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview } = require('./controllers/moviecontroller');
-const { getUserReviews } = require('./controllers/usercontroller');
+const { getUserReviews, getAllUsers } = require('./controllers/usercontroller');
 
 const app = express();
 const port = 3000;
@@ -80,14 +80,32 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/user', async (req, res) => {
+    const errorMessage = req.flash('error');
     if (req.session.user) {
-        const reviews = await getUserReviews(req.session.user);
-        res.render('user', { reviews, user: req.session.user });
+        const user = req.session.user;
+        let allUsers = [];
+        if (user.roleName === "admin") {
+            allUsers = await getAllUsers();
+        }
+        const reviews = await getUserReviews(user);
+        res.render('user', { reviews, user, allUsers, errorMessage });
     } else {
         res.redirect('/login');
     }
 });
 
+app.put('/user/:id/role', async (req, res) => {
+    const userId = req.params.id;
+    const newRole = req.body.role;
+  
+    const result = await updateUser(userId, newRole);
+    if (result.success) {
+        res.redirect('/user');
+    } else {
+        req.flash('error', result.message);
+        res.redirect('/user');
+    }
+  });
 
 app.get('/logout', (req, res) => {
     req.session.destroy();
