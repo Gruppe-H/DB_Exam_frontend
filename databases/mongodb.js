@@ -56,4 +56,32 @@ async function createMovieReview(review) {
     }
 }
 
-module.exports = { connectToMongoDB, getAllMovieReviews, getSelectionSpoilerFreeMovieReviews, createMovieReview };
+async function getAllRegions() {
+    try {
+        const collection = database.collection(process.env.MONGODB_TITLE_COLLECTION);
+        const regions = await collection.distinct('region');
+        return regions;
+    } catch (error) {
+        console.error('Error fethcing regions:', error);
+        throw error;
+    }
+}
+
+async function getRegionalTitles(region) {
+    try {
+        const collection = database.collection(process.env.MONGODB_TITLE_COLLECTION);
+        const regionalTitles = await collection.find({
+            region: region
+        }).toArray();
+        return regionalTitles;
+    } catch (error) {
+        console.error('Error fetching regional titles:', error);
+        return [];
+    }
+}
+
+
+module.exports = {
+    connectToMongoDB, getAllMovieReviews, getSelectionSpoilerFreeMovieReviews,
+    createMovieReview, getAllRegions, getRegionalTitles
+};

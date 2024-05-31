@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Region</title>
+</head>
+<body>
+    <form action="/region" method="post">
+        <label for="regions">Select Region:</label>
+        <select id="regions" name="selectedRegion">
+            <option value="">Select</option>
+            <% regions.forEach(region => { %>
+                <option value="<%= region %>"><%= region %></option>
+            <% }); %>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

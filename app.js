@@ -8,8 +8,8 @@ dotenv.config();
 
 const { connectToMSSQL, loginUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
-const { connectToMongoDB } = require('./databases/mongodb');
-const { getAllMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview } = require('./controllers/moviecontroller');
+const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
+const { getAllMovies, getAllRegionalMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview } = require('./controllers/moviecontroller');
 
 const app = express();
 const port = 3000;
@@ -28,8 +28,13 @@ app.use(flash());
 // Routes
 app.get('/', async (req, res) => {
     try {
-        movies = await getAllMovies();
-        res.render('index', { movies, user: req.session.user });
+        if (req.session.region) {
+            movies = await getAllRegionalMovies(req.session.region);
+            res.render('index', { movies, user: req.session.user });
+        } else {
+            movies = await getAllMovies();
+            res.render('index', { movies, user: req.session.user });
+        }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
@@ -68,6 +73,22 @@ app.post('/login', async (req, res) => {
         req.flash('error', result.message);
         res.redirect('/login');
     }
+});
+
+app.get('/region', async (req, res) => {
+    try {
+        const regions = await getAllRegions();
+        res.render('region', { regions });
+    } catch (error) {
+        console.error('Error fetching regions:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+app.post('/region', async (req, res) => {
+    const selectedRegion = req.body.selectedRegion;
+    req.session.region = selectedRegion;
+    res.redirect('/');
 });
 
 app.get('/review/:id', async (req, res) => {

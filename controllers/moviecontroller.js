@@ -1,6 +1,6 @@
 const { getMovies } = require('../databases/mssql');
 const { getMovieActors } = require('../databases/neo4j');
-const { createMovieReview, getSelectionSpoilerFreeMovieReviews, getAllMovieReviews } = require('../databases/mongodb');
+const { createMovieReview, getSelectionSpoilerFreeMovieReviews, getAllMovieReviews, getRegionalTitles } = require('../databases/mongodb');
 const getUser = require('./usercontroller');
 
 let all_movies;
@@ -8,6 +8,21 @@ let all_movies;
 async function getAllMovies() {
     if (!all_movies) {
         all_movies = await getMovies();
+    }
+    return all_movies;
+}
+
+async function getAllRegionalMovies(region) {
+    if (!all_movies) {
+        all_movies = await getMovies();
+    }
+
+    const regionalTitles = await getRegionalTitles(region);
+    for (const movie of all_movies) {
+        const match = regionalTitles.find(title => title.titleId === movie.id);
+        if (match) {
+            movie.primary_title = match.title;
+        }
     }
     return all_movies;
 }
@@ -55,4 +70,7 @@ async function addMovieReview(review) {
     return result;
 }
 
-module.exports = { getAllMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview };
+module.exports = {
+    getAllMovies, getMovie, getMovieDetails,
+    getMovieReviews, addMovieReview, getAllRegionalMovies
+};

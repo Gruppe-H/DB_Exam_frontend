@@ -12,24 +12,26 @@
     <div class="container">
         <h1>Movie Reviews</h1>
         <% if (user) { %>
-            <p>Welcome, <%= user.username %>! <a href="/logout">Logout</a></p>
-            <% } else { %>
-                <p><a href="/login">Login</a> to leave a review.</p>
-                <% } %>
+        <p>Welcome, <%= user.username %>! <a href="/logout">Logout</a></p>
+        <% } else { %>
+        <p><a href="/login">Login</a> to leave a review.</p>
+        <% } %>
 
-                    <!-- Movie grid -->
-                    <div class="movie-grid">
-                        <% movies.forEach(movie=> { %>
-                            <div class="movie-box">
-                                <a href="/movie/<%= movie.id %>">
-                                    <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.primary_title %>">
-                                    <h2>
-                                        <%= movie.primary_title %> (<%= movie.release_date %>)
-                                    </h2>
-                                </a>
-                            </div>
-                            <% }); %>
-                    </div>
+        <p><a href="/region">Choose region</a></p>
+
+        <!-- Movie grid -->
+        <div class="movie-grid">
+            <% movies.forEach(movie=> { %>
+            <div class="movie-box">
+                <a href="/movie/<%= movie.id %>">
+                    <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.primary_title %>">
+                    <h2>
+                        <%= movie.primary_title %> (<%= movie.release_date %>)
+                    </h2>
+                </a>
+            </div>
+            <% }); %>
+        </div>
     </div>
 </body>
 
