@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 // Envionment variables:
 const dotenv = require('dotenv');
 dotenv.config();
@@ -56,6 +56,21 @@ async function createMovieReview(review) {
     }
 }
 
+async function deleteMovieReview(reviewId) {
+    try {
+        const collection = database.collection(process.env.MONGODB_REVIEW_COLLECTION);
+        const result = await collection.deleteOne({ _id: new ObjectId(reviewId) });
+        if (result.deletedCount === 1) {
+            return { success: true };
+        } else {
+            return { success: false, message: 'Could not delete review' };
+        }
+    } catch (error) {
+        console.error('Error deleting review:', error);
+        throw error;
+    }
+}
+
 async function getAllRegions() {
     try {
         const collection = database.collection(process.env.MONGODB_TITLE_COLLECTION);
@@ -83,5 +98,5 @@ async function getRegionalTitles(region) {
 
 module.exports = {
     connectToMongoDB, getAllMovieReviews, getSelectionSpoilerFreeMovieReviews,
-    createMovieReview, getAllRegions, getRegionalTitles
+    createMovieReview, deleteMovieReview, getAllRegions, getRegionalTitles
 };

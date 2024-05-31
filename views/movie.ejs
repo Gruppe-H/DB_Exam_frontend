@@ -47,13 +47,6 @@
             </ul>
         <% } %>
 
-        <% if (user) { %>
-            <h2>Leave a Review:</h2>
-            <%- include('reviewform', { movie: movie, user: user }) %>
-            <% } else { %>
-                <p><a href="/login">Login</a> to leave a review.</p>
-                <% } %>
-
         <%- include('review', { movie: movie, user: user, reviews: reviews, from_movie_page: true }) %>
     </div>
 </body>

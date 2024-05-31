@@ -13,6 +13,13 @@
     }
 </style>
 
+<% if (user) { %>
+    <h2>Leave a Review:</h2>
+    <%- include('reviewform', { movie: movie, user: user }) %>
+    <% } else { %>
+        <p><a href="/login">Login</a> to leave a review.</p>
+<% } %>
+
 <h2>Reviews:</h2>
 <% if (reviews.length === 0) { %>
     <p>No reviews yet. Be the first to leave a review!</p>
@@ -23,8 +30,17 @@
                 <% if (review.is_spoiler) { %>
                     <span style="color: red;">[Spoiler Warning]</span>
                 <% } %>
+
+                <% if (user && user.roleName === 'admin') { %>
+                    <form action="/review/<%= movie.id %>?_method=DELETE" method="POST">
+                        <input type="hidden" name="review_id" value="<%= review._id %>">
+                        <button type="submit" style="background: none; border: none; padding: 0; text-align: right; cursor: pointer;">
+                            ❌
+                        </button> 
+                    </form>
+                <% } %>
                 
-                <%= review.user ? review.user.username + (review.user.roleName === "certified" ? " ⭐" : "") : "Guest_" + review.user_id %>:
+                <p><small><%= review.user ? review.user.username + (review.user.roleName === "certified" ? " ⭐" : "") : "Guest_" + review.user_id %>:</small></p>
                 
                 <p>
                     <strong><%= review.review_summary %></strong>
