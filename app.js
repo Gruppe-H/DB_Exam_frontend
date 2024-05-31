@@ -146,9 +146,9 @@ app.get('/sort/:type', async (req, res) => {
     try {
         const movies = await getAllMovies();
         if (req.params.type === 'rating') {
-            movies.sort((a, b) => a.rating - b.rating); // Ascending order for rating
+            movies.sort((a, b) => b.rating - a.rating); // Descending order for rating
         } else if (req.params.type === 'release') {
-            movies.sort((a, b) => new Date(a.release_date) - new Date(b.release_date)); // Ascending order for release date
+            movies.sort((a, b) => new Date(b.release_date) - new Date(a.release_date)); // Descending order for release date
         } else if (req.params.type === 'title') {
             movies.sort((a, b) => a.primary_title.localeCompare(b.primary_title)); // Ascending order for title
         }
