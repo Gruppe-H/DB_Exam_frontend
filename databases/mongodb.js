@@ -16,10 +16,24 @@ const connectToMongoDB = async () => {
 
 const database = client.db(process.env.MONGODB_DATABASE);
 
-async function getMovieReviews(movieId) {
+async function getAllMovieReviews(movieId) {
     try {
         const collection = database.collection(process.env.MONGODB_REVIEW_COLLECTION);
         const reviews = await collection.find({ movie_id: movieId }).sort({ review_date: -1 }).toArray();
+        return reviews;
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        return [];
+    }
+}
+
+async function getSelectionSpoilerFreeMovieReviews(movieId) {
+    try {
+        const collection = database.collection(process.env.MONGODB_REVIEW_COLLECTION);
+        const reviews = await collection.find({
+            movie_id: movieId,
+            is_spoiler: false
+        }).sort({ review_date: -1 }).limit(25).toArray();
         return reviews;
     } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -42,4 +56,4 @@ async function createMovieReview(review) {
     }
 }
 
-module.exports = { connectToMongoDB, getMovieReviews, createMovieReview };
+module.exports = { connectToMongoDB, getAllMovieReviews, getSelectionSpoilerFreeMovieReviews, createMovieReview };

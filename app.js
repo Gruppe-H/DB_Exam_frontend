@@ -8,8 +8,8 @@ dotenv.config();
 
 const { connectToMSSQL, loginUser } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
-const { connectToMongoDB} = require('./databases/mongodb');
-const { getAllMovies, getMovie, getMovieDetails, addMovieReview } = require('./controllers/moviecontroller');
+const { connectToMongoDB } = require('./databases/mongodb');
+const { getAllMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview } = require('./controllers/moviecontroller');
 
 const app = express();
 const port = 3000;
@@ -67,6 +67,23 @@ app.post('/login', async (req, res) => {
     } else {
         req.flash('error', result.message);
         res.redirect('/login');
+    }
+});
+
+app.get('/review/:id', async (req, res) => {
+    try {
+        const movieId = req.params.id;
+        const movie = await getMovie(movieId);
+
+        if (movie) {
+            const reviews = await getMovieReviews(movie);
+            res.render('reviews', { movie, reviews, user: req.session.user });
+        } else {
+            res.status(404).send('Movie not found');
+        }
+    } catch (error) {
+        console.error('Error fetching movie reviews:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 

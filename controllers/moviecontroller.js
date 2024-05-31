@@ -1,6 +1,6 @@
 const { getMovies } = require('../databases/mssql');
 const { getMovieActors } = require('../databases/neo4j');
-const { getMovieReviews, createMovieReview } = require('../databases/mongodb');
+const { createMovieReview, getSelectionSpoilerFreeMovieReviews, getAllMovieReviews } = require('../databases/mongodb');
 const getUser = require('./usercontroller');
 
 let all_movies;
@@ -22,12 +22,20 @@ async function getMovie(movieId) {
 async function getMovieDetails(movie) {
     const actors = await getMovieActors(movie.id);
     const director = actors.find(actor => actor.professions.some(p => p === 'director'));
-    const reviews = await getMovieReviews(movie.id);
+    const reviews = await getSelectionSpoilerFreeMovieReviews(movie.id);
     for (const review of reviews) {
         review.user = await getUser(review.user_id);
     }
 
     return { movie, actors, director, reviews };
+}
+
+async function getMovieReviews(movie) {
+    const reviews = await getAllMovieReviews(movie.id);
+    for (const review of reviews) {
+        review.user = await getUser(review.user_id);
+    }
+    return reviews;
 }
 
 async function addMovieReview(review) {
@@ -36,15 +44,15 @@ async function addMovieReview(review) {
     const movie = all_movies.find(m => m.id === review.movie_id);
     if (movie) {
         movie.reviews.unshift({
-            user_id,
-            review_date,
-            review_text,
-            rating,
-            review_summary,
-            is_spoiler
+            user_id: review.user_id,
+            review_date: review.review_date,
+            review_text: review.review_text,
+            rating: review.rating,
+            review_summary: review.review_summary,
+            is_spoiler: review.is_spoiler
         });
     }
     return result;
 }
 
-module.exports = { getAllMovies, getMovie, getMovieDetails, addMovieReview };
+module.exports = { getAllMovies, getMovie, getMovieDetails, getMovieReviews, addMovieReview };

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <%= movie.title %> - Reviews
+        <%= movie.primary_title %>
     </title>
     <link rel="stylesheet" href="/styles.css">
 </head>
@@ -54,21 +54,7 @@
                 <p><a href="/login">Login</a> to leave a review.</p>
                 <% } %>
 
-        <h2>Reviews:</h2>
-        <% if (reviews.length===0) { %>
-            <p>No reviews yet. Be the first to leave a review!</p>
-            <% } else { %>
-                <ul>
-                    <% reviews.forEach(review => { %>
-                        <li>
-                            <strong>
-                                <%= review.user ? review.user.username + (review.user.roleName === "certified" ? " ⭐" : "")  : "Guest_" + review.user_id %>: 
-                            </strong>
-                            <%= review.review_text %>
-                        </li>
-                    <% }); %>
-                </ul>
-                <% } %>
+        <%- include('review', { movie: movie, user: user, reviews: reviews, from_movie_page: true }) %>
     </div>
 </body>
 
