@@ -1,0 +1,41 @@
+<style>
+    .review-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+        grid-gap: 20px; 
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .review-item {
+        border: 1px solid #ccc; 
+        padding: 10px;
+    }
+</style>
+
+<h2>Reviews:</h2>
+<% if (reviews.length === 0) { %>
+    <p>No reviews yet. Be the first to leave a review!</p>
+<% } else { %>
+    <ul class="review-list">
+        <% reviews.forEach(review => { %>
+            <li class="review-item">
+                <% if (review.is_spoiler) { %>
+                    <span style="color: red;">[Spoiler Warning]</span>
+                <% } %>
+                
+                <%= review.user ? review.user.username + (review.user.roleName === "certified" ? " ⭐" : "") : "Guest_" + review.user_id %>:
+                
+                <p>
+                    <strong><%= review.review_summary %></strong>
+                    <span style="font-size: larger;"> | Rating: <%= review.rating %>0/100</span>
+                </p>
+                <p style="text-align: left;"><%= review.review_text %></p>
+                <p><small><%= review.review_date %></small></p>
+            </li>
+        <% }); %>
+    </ul>
+    <% if (from_movie_page) { %>
+        <p><a href="/review/<%= movie.id %>"">Click here</a> to see all reviews.</p>
+    <% } %>
+<% } %>
