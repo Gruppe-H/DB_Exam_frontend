@@ -165,3 +165,5 @@ dist
 # Ignore .env file
 .env
 
+.DS_Store
+
