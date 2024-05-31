@@ -121,6 +121,23 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
+app.get('/sort/:type', async (req, res) => {
+    try {
+        const movies = await getAllMovies();
+        if (req.params.type === 'rating') {
+            movies.sort((a, b) => a.rating - b.rating); // Ascending order for rating
+        } else if (req.params.type === 'release') {
+            movies.sort((a, b) => new Date(a.release_date) - new Date(b.release_date)); // Ascending order for release date
+        } else if (req.params.type === 'title') {
+            movies.sort((a, b) => a.primary_title.localeCompare(b.primary_title)); // Ascending order for title
+        }
+        res.render('index', { movies, user: req.session.user });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 const startServer = async () => {
     try {
         await connectToMSSQL();
