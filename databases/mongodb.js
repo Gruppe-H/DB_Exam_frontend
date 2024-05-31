@@ -27,6 +27,17 @@ async function getAllMovieReviews(movieId) {
     }
 }
 
+async function getMovieReviewsByUser(userId) {
+    try {
+        const collection = database.collection(process.env.MONGODB_REVIEW_COLLECTION);
+        const reviews = await collection.find({ user_id: userId }).toArray();
+        return reviews;
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        return [];
+    }
+}
+
 async function getSelectionSpoilerFreeMovieReviews(movieId) {
     try {
         const collection = database.collection(process.env.MONGODB_REVIEW_COLLECTION);
@@ -97,6 +108,6 @@ async function getRegionalTitles(region) {
 
 
 module.exports = {
-    connectToMongoDB, getAllMovieReviews, getSelectionSpoilerFreeMovieReviews,
+    connectToMongoDB, getAllMovieReviews, getSelectionSpoilerFreeMovieReviews, getMovieReviewsByUser,
     createMovieReview, deleteMovieReview, getAllRegions, getRegionalTitles
 };

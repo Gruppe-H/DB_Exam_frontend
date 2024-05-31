@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Page</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>User Information</h1>
+    <p><strong>Name:</strong> <%= user.firstName %> <%= user.lastName %></p>
+    <p><strong>Email:</strong> <%= user.email %></p>
+
+    <h2>Reviews by you:</h2>
+<% if (reviews.length === 0) { %>
+    <p>No reviews yet. Find a movie and leave a review!</p>
+<% } else { %>
+    <ul class="review-list">
+        <% reviews.forEach(review => { %>
+            <li class="review-item">
+                <% if (review.is_spoiler) { %>
+                    <span style="color: red;">[Spoiler Warning]</span>
+                <% } %>
+
+                    <form action="/review/<%= review.movie_id %>?_method=DELETE" method="POST">
+                        <input type="hidden" name="review_id" value="<%= review._id %>">
+                        <button type="submit" style="background: none; border: none; padding: 0; text-align: right; cursor: pointer;">
+                            ❌
+                        </button> 
+                    </form>
+                
+                <p><small><%= review.user ? review.user.username + (review.user.roleName === "certified" ? " ⭐" : "") : "Guest_" + review.user_id %>:</small></p>
+                
+                <p>
+                    <strong><%= review.review_summary %></strong>
+                    <span style="font-size: larger;"> | Rating: <%= review.rating %>0/100</span>
+                </p>
+                <p style="text-align: left;"><%= review.review_text %></p>
+                <p><small><%= review.review_date %></small></p>
+            </li>
+        <% }); %>
+    </ul>
+    <% } %>
+  </div>
+</body>
+</html>

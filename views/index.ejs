@@ -12,7 +12,7 @@
     <div class="container">
         <h1>Movie Reviews</h1>
         <% if (user) { %>
-        <p>Welcome, <%= user.username %>! <a href="/logout">Logout</a></p>
+        <p>Welcome, <%= user.username %>! <a href="/user">Go to userpage</a> <a href="/logout">Logout</a></p>
         <% } else { %>
         <p><a href="/login">Login</a> to leave a review.</p>
         <% } %>

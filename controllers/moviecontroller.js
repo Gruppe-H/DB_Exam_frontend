@@ -1,8 +1,8 @@
 const { getMovies, sortMovies } = require('../databases/mssql');
 const { getMovieActors } = require('../databases/neo4j');
-const { createMovieReview, deleteMovieReview, getSelectionSpoilerFreeMovieReviews, 
+const { createMovieReview, deleteMovieReview, getSelectionSpoilerFreeMovieReviews,
     getAllMovieReviews, getRegionalTitles } = require('../databases/mongodb');
-const getUser = require('./usercontroller');
+const { getUser } = require('./usercontroller');
 
 let all_movies;
 

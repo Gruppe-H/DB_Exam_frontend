@@ -7,11 +7,12 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { connectToMSSQL, loginUser, searchMovieByTitle} = require('./databases/mssql');
+const { connectToMSSQL, loginUser, searchMovieByTitle } = require('./databases/mssql');
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
 const { getAllMovies, getAllRegionalMovies, getMovie,
     getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview } = require('./controllers/moviecontroller');
+const { getUserReviews } = require('./controllers/usercontroller');
 
 const app = express();
 const port = 3000;
@@ -76,6 +77,21 @@ app.post('/login', async (req, res) => {
         req.flash('error', result.message);
         res.redirect('/login');
     }
+});
+
+app.get('/user', async (req, res) => {
+    if (req.session.user) {
+        const reviews = await getUserReviews(req.session.user);
+        res.render('user', { reviews, user: req.session.user });
+    } else {
+        res.redirect('/login');
+    }
+});
+
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
 app.get('/region', async (req, res) => {
@@ -161,11 +177,6 @@ app.post('/review/:id', async (req, res) => {
     }
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
 app.get('/sort/:type', async (req, res) => {
     try {
         const movies = await getAllMovies();
@@ -183,12 +194,9 @@ app.get('/sort/:type', async (req, res) => {
     }
 });
 
-// New route for searching movies by title
 app.get('/search', async (req, res) => {
-    console.log('Search query:', req.query);
     try {
         const title = req.query.search;
-        console.log('Title:', title);
         if (!title) {
             res.render('search', { movies: [], user: req.session.user });
             return;
