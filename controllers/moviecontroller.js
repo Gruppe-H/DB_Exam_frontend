@@ -1,5 +1,5 @@
-const { getMovies } = require('../databases/mssql');
-const { getMovieActors } = require('../databases/neo4j');
+const { getMovies, createMovie } = require('../databases/mssql');
+const { getMovieActors, createMovieActors } = require('../databases/neo4j');
 const { createMovieReview, deleteMovieReview, getSelectionSpoilerFreeMovieReviews,
     getAllMovieReviews, getRegionalTitles } = require('../databases/mongodb');
 const { getUser } = require('./usercontroller');
@@ -15,11 +15,8 @@ async function getAllMovies() {
 }
 
 async function getAllRegionalMovies(region) {
-    if (!all_movies) {
-        all_movies = await getMovies();
-    }
-
     const regionalTitles = await getRegionalTitles(region);
+    let all_movies = await getMovies();
     for (const movie of all_movies) {
         const match = regionalTitles.find(title => title.titleId === movie.id);
         if (match) {
@@ -30,9 +27,7 @@ async function getAllRegionalMovies(region) {
 }
 
 async function getMovie(movieId) {
-    if (!all_movies) {
-        all_movies = await getAllMovies();
-    }
+    let all_movies = await getAllMovies();
     return all_movies.find(m => m.id === movieId);
 }
 
@@ -58,6 +53,7 @@ async function getMovieReviews(movie) {
 async function addMovieReview(review) {
     const result = await createMovieReview(review);
     //update in-memory movies 
+    let all_movies = await getAllMovies();
     const movie = all_movies.find(m => m.id === review.movie_id);
     if (movie) {
         movie.reviews.unshift(review);
@@ -68,6 +64,7 @@ async function addMovieReview(review) {
 async function removeMovieReview(reviewId, movieId) {
     const result = await deleteMovieReview(reviewId);
     // Update in-memory movies 
+    let all_movies = await getAllMovies();
     const movie = all_movies.find(m => m.id === movieId);
     if (movie) {
         movie.reviews = movie.reviews.filter(review => review.id !== reviewId);
@@ -76,7 +73,26 @@ async function removeMovieReview(reviewId, movieId) {
     return result;
 }
 
+async function addMovie(movie, actors) {
+    const movieResult = await createMovie(movie);
+    if (movieResult.success) {
+        const actorResult = await createMovieActors(movie.id, actors);
+        if (actorResult.success) {
+            // update in-memory
+            let all_movies = await getAllMovies();
+            const foundMovie = all_movies.find(m => m.id === movie.id);
+            if (!foundMovie) {
+                all_movies.unshift(movie);
+            }
+            return movieResult;
+        } else {
+            return actorResult;
+        }
+    }
+    return movieResult;
+}
+
 module.exports = {
-    getAllMovies, getMovie, getMovieDetails,
+    getAllMovies, getMovie, getMovieDetails, addMovie,
     getMovieReviews, addMovieReview, getAllRegionalMovies, removeMovieReview
 };

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Movie</title>
+</head>
+
+<body>
+    <h1>Create a New Movie</h1>
+    <form id="movieForm" action="/create-movie" method="POST">
+        <h2>Movie Details</h2>
+        <label for="movieId">Movie ID:</label>
+        <input type="text" id="movieId" name="movieId" required><br><br>
+
+        <label for="primaryTitle">Primary Title:</label>
+        <input type="text" id="primaryTitle" name="primaryTitle" required><br><br>
+
+        <label for="originalTitle">Original Title:</label>
+        <input type="text" id="originalTitle" name="originalTitle" required><br><br>
+
+        <label for="duration">Duration (minutes):</label>
+        <input type="number" id="duration" name="duration" required><br><br>
+
+        <label for="rating">Rating:</label>
+        <input type="number" step="0.1" id="rating" name="rating" required><br><br>
+
+        <label for="releaseDate">Release Date:</label>
+        <input type="date" id="releaseDate" name="releaseDate" required><br><br>
+
+        <label for="plotSummary">Plot Summary:</label><br>
+        <textarea id="plotSummary" name="plotSummary" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="plotSynopsis">Plot Synopsis:</label><br>
+        <textarea id="plotSynopsis" name="plotSynopsis" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="genres">Genres (comma separated):</label>
+        <input type="text" id="genres" name="genres" required><br><br>
+
+        <h2>Actors</h2>
+        <div id="actorsSection">
+            <div class="actor">
+                <h3>Actor 1</h3>
+                <label for="actorId1">Actor ID:</label>
+                <input type="text" id="actorId1" name="actorId1" required><br><br>
+
+                <label for="actorName1">Actor Name:</label>
+                <input type="text" id="actorName1" name="actorName1" required><br><br>
+
+                <label for="birthYear1">Birth Year:</label>
+                <input type="number" id="birthYear1" name="birthYear1" required><br><br>
+
+                <label for="deathYear1">Death Year (if applicable):</label>
+                <input type="number" id="deathYear1" name="deathYear1"><br><br>
+
+                <label for="professions1">Professions (comma separated):</label>
+                <input type="text" id="professions1" name="professions1" required><br><br>
+            </div>
+        </div>
+        <button type="button" onclick="addActor()">Add Another Actor</button><br><br>
+
+        <button type="submit">Create Movie</button>
+    </form>
+
+    <script>
+        let actorCount = 1;
+
+        function addActor() {
+            actorCount++;
+            const actorsSection = document.getElementById('actorsSection');
+            const newActor = document.createElement('div');
+            newActor.className = 'actor';
+            newActor.innerHTML = `
+                <h3>Actor ${actorCount}</h3>
+                <label for="actorId${actorCount}">Actor ID:</label>
+                <input type="text" id="actorId${actorCount}" name="actorId${actorCount}" required><br><br>
+    
+                <label for="actorName${actorCount}">Actor Name:</label>
+                <input type="text" id="actorName${actorCount}" name="actorName${actorCount}" required><br><br>
+    
+                <label for="birthYear${actorCount}">Birth Year:</label>
+                <input type="number" id="birthYear${actorCount}" name="birthYear${actorCount}" required><br><br>
+    
+                <label for="deathYear${actorCount}">Death Year (if applicable):</label>
+                <input type="number" id="deathYear${actorCount}" name="deathYear${actorCount}"><br><br>
+    
+                <label for="professions${actorCount}">Professions (comma separated):</label>
+                <input type="text" id="professions${actorCount}" name="professions${actorCount}" required><br><br>
+            `;
+            actorsSection.appendChild(newActor);
+        }
+
+        document.getElementById('movieForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const movie = {
+                id: document.getElementById('movieId').value,
+                primary_title: document.getElementById('primaryTitle').value,
+                original_title: document.getElementById('originalTitle').value,
+                duration: document.getElementById('duration').value,
+                rating: document.getElementById('rating').value,
+                release_date: document.getElementById('releaseDate').value,
+                plot_summary: document.getElementById('plotSummary').value,
+                plot_synopsis: document.getElementById('plotSynopsis').value,
+                genres: document.getElementById('genres').value.split(',')
+            };
+
+            const actors = [];
+            for (let i = 1; i <= actorCount; i++) {
+                actors.push({
+                    id: document.getElementById(`actorId${i}`).value,
+                    name: document.getElementById(`actorName${i}`).value,
+                    birthYear: document.getElementById(`birthYear${i}`).value,
+                    deathYear: document.getElementById(`deathYear${i}`).value || null,
+                    professions: document.getElementById(`professions${i}`).value.split(',')
+                });
+            }
+
+            const formData = new FormData();
+            formData.append('movie', JSON.stringify(movie));
+            formData.append('actors', JSON.stringify(actors));
+
+            fetch('/create-movie', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url; 
+                    } else {
+                        return response.text();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+
+</body>
+
+</html>

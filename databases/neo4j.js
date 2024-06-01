@@ -41,4 +41,45 @@ async function getMovieActors(movieId) {
     }
 }
 
-module.exports = { connectToNeo4j, getMovieActors };
+async function createMovieActors(movieId, actors) {
+    const session = getSession();
+    const transaction = session.beginTransaction();
+    try {
+        const queries = actors.map(actor => {
+            return transaction.run(
+                `MATCH (m:Movie {id: $movieId})
+                WITH m
+                MERGE (a:Actor {id: $actorId})
+                SET a.name = $actorName,
+                    a.birthYear = $birthYear,
+                    a.deathYear = $deathYear
+                MERGE (a)-[:KNOWN_FOR]->(m)
+                WITH a
+                UNWIND $professions AS professionName
+                MERGE (p:Profession {name: professionName})
+                MERGE (a)-[:IS_A]->(p)
+                `,
+                {
+                    movieId,
+                    actorId: actor.id,
+                    actorName: actor.name,
+                    birthYear: actor.birthYear,
+                    deathYear: actor.deathYear,
+                    professions: actor.professions.map(p => p.replace(/ /g, '_'))
+                }
+            );
+        });
+
+        await Promise.all(queries);
+        await transaction.commit();
+        return { success: true };
+    } catch (error) {
+        console.error('Error executing query:', error);
+        await transaction.rollback();
+        return { success: false, message: 'Could not create movie actors' };
+    } finally {
+        await session.close();
+    }
+}
+
+module.exports = { connectToNeo4j, getMovieActors, createMovieActors };

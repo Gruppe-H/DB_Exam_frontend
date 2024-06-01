@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
+const multer = require('multer');
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -11,7 +12,8 @@ const { connectToMSSQL, loginUser, searchMovieByTitle, updateUser } = require('.
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
 const { getAllMovies, getAllRegionalMovies, getMovie,
-    getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview } = require('./controllers/moviecontroller');
+    getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview, 
+    addMovie} = require('./controllers/moviecontroller');
 const { getUserReviews, getAllUsers } = require('./controllers/usercontroller');
 
 const app = express();
@@ -28,6 +30,7 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.use(flash());
 app.use(methodOverride('_method'));
+const upload = multer();
 
 // Routes
 app.get('/', async (req, res) => {
@@ -97,7 +100,7 @@ app.get('/user', async (req, res) => {
 app.put('/user/:id/role', async (req, res) => {
     const userId = req.params.id;
     const newRole = req.body.role;
-  
+
     const result = await updateUser(userId, newRole);
     if (result.success) {
         res.redirect('/user');
@@ -105,7 +108,7 @@ app.put('/user/:id/role', async (req, res) => {
         req.flash('error', result.message);
         res.redirect('/user');
     }
-  });
+});
 
 app.get('/logout', (req, res) => {
     req.session.destroy();
@@ -225,6 +228,27 @@ app.get('/search', async (req, res) => {
     } catch (error) {
         console.error('Error searching for movies:', error);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+app.get('/create-movie', (req, res) => {
+    if (req.session.user && req.session.user.roleName === "admin") {
+        res.render('movieform');
+    } else {
+        res.send('You must be logged in as admin to create a movie');
+    }
+});
+
+app.post('/create-movie', upload.none(), async (req, res) => {
+    const { movie, actors } = req.body;
+    const parsedMovie = JSON.parse(movie);
+    const parsedActors = JSON.parse(actors);
+    const result = await addMovie(parsedMovie, parsedActors);
+
+    if (result.success) {
+        res.redirect(`/movie/${parsedMovie.id}`);
+    } else {
+        res.send(`Error: ${result.message}`);
     }
 });
 

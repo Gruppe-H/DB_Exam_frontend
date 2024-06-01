@@ -47,6 +47,48 @@ async function getMovies() {
     }
 };
 
+async function createMovie(movie) {
+    try {
+        await sql.connect(config);
+        const movieResult = await sql.query`
+            INSERT INTO [db_exam].[dbo].[Movies] 
+            (movie_id, primary_title, original_title, duration, rating, release_date, plot_summary, plot_synopsis) 
+            VALUES 
+            (${movie.id}, ${movie.primary_title}, ${movie.original_title}, 
+            ${movie.duration}, ${movie.rating}, ${movie.release_date}, 
+            ${movie.plot_summary}, ${movie.plot_synopsis})`;
+
+        if (movieResult.rowsAffected[0] !== 1) {
+            return { success: false, message: 'Could not create movie' };
+        }
+
+        const genreQueries = movie.genres.map(genre => {
+            return Promise.all([
+                sql.query`
+                    IF NOT EXISTS (SELECT 1 FROM [db_exam].[dbo].[Genres] WHERE genre = ${genre})
+                    BEGIN
+                        INSERT INTO [db_exam].[dbo].[Genres] (genre) 
+                        VALUES (${genre})
+                    END
+                `,
+                sql.query`
+                    INSERT INTO [db_exam].[dbo].[Movie_Genre] (movie_id, genre_id) 
+                    VALUES (${movie.id}, (SELECT genre_id FROM [db_exam].[dbo].[Genres] WHERE genre = ${genre}))
+                `
+            ]);
+        });
+
+        await Promise.all(genreQueries.flat());
+
+        return { success: true };
+    } catch (err) {
+        console.error('Error creating movie:', err);
+        return { success: false, message: 'Something went wrong' };
+    } finally {
+        await sql.close();
+    }
+}
+
 async function getUsers() {
     try {
         await sql.connect(config);
@@ -187,4 +229,4 @@ async function searchMovieByTitle(title) {
 }
 
 
-module.exports = { connectToMSSQL, getMovies, getUserById, loginUser, searchMovieByTitle, getUsers, updateUser };
+module.exports = { connectToMSSQL, getMovies, createMovie, getUserById, loginUser, searchMovieByTitle, getUsers, updateUser };

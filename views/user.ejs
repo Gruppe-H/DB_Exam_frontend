@@ -45,6 +45,7 @@
 
     <% if (user.roleName  === 'admin') { %>
         <h2>Admin Section</h2>
+        <a href="/create-movie">Add new movie</a> 
         <% if (errorMessage.length > 0) { %>
             <p style="color: red;"><%= errorMessage %></p>
         <% } %>
