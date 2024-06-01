@@ -50,36 +50,20 @@ async function getMovies() {
 async function createMovie(movie) {
     try {
         await sql.connect(config);
-        const movieResult = await sql.query`
-            INSERT INTO [db_exam].[dbo].[Movies] 
-            (movie_id, primary_title, original_title, duration, rating, release_date, plot_summary, plot_synopsis) 
-            VALUES 
-            (${movie.id}, ${movie.primary_title}, ${movie.original_title}, 
-            ${movie.duration}, ${movie.rating}, ${movie.release_date}, 
-            ${movie.plot_summary}, ${movie.plot_synopsis})`;
+        const genres = movie.genres.join(',');
 
-        if (movieResult.rowsAffected[0] !== 1) {
-            return { success: false, message: 'Could not create movie' };
-        }
-
-        const genreQueries = movie.genres.map(genre => {
-            return Promise.all([
-                sql.query`
-                    IF NOT EXISTS (SELECT 1 FROM [db_exam].[dbo].[Genres] WHERE genre = ${genre})
-                    BEGIN
-                        INSERT INTO [db_exam].[dbo].[Genres] (genre) 
-                        VALUES (${genre})
-                    END
-                `,
-                sql.query`
-                    INSERT INTO [db_exam].[dbo].[Movie_Genre] (movie_id, genre_id) 
-                    VALUES (${movie.id}, (SELECT genre_id FROM [db_exam].[dbo].[Genres] WHERE genre = ${genre}))
-                `
-            ]);
-        });
-
-        await Promise.all(genreQueries.flat());
-
+        const result = await sql.query`
+            EXEC dbo.CreateMovie 
+                @movie_id = ${movie.id},
+                @primary_title = ${movie.primary_title},
+                @original_title = ${movie.original_title},
+                @duration = ${movie.duration},
+                @rating = ${movie.rating},
+                @release_date = ${movie.release_date},
+                @plot_summary = ${movie.plot_summary},
+                @plot_synopsis = ${movie.plot_synopsis},
+                @genres = ${genres}`;
+                
         return { success: true };
     } catch (err) {
         console.error('Error creating movie:', err);
@@ -88,6 +72,7 @@ async function createMovie(movie) {
         await sql.close();
     }
 }
+
 
 async function getUsers() {
     try {

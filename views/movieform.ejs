@@ -132,6 +132,11 @@
                         return response.text();
                     }
                 })
+                .then(result => {
+                    if (result) {
+                       alert(result); 
+                    }
+                })
                 .catch(error => {
                     console.error('Error:', error);
                 });
