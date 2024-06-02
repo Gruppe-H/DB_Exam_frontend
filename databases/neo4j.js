@@ -46,19 +46,19 @@ async function createMovieActors(movieId, actors) {
     const transaction = session.beginTransaction();
     try {
         const queries = actors.map(actor => {
+            console.log(`Processing actor: ${actor.name}`);
             return transaction.run(
-                `MATCH (m:Movie {id: $movieId})
-                WITH m
+                `MERGE (m:Movie {id: $movieId})
+                ON CREATE SET m.id = $movieId
                 MERGE (a:Actor {id: $actorId})
-                SET a.name = $actorName,
-                    a.birthYear = $birthYear,
-                    a.deathYear = $deathYear
+                ON CREATE SET a.name = $actorName,
+                              a.birthYear = $birthYear,
+                              a.deathYear = $deathYear
                 MERGE (a)-[:KNOWN_FOR]->(m)
                 WITH a
                 UNWIND $professions AS professionName
                 MERGE (p:Profession {name: professionName})
-                MERGE (a)-[:IS_A]->(p)
-                `,
+                MERGE (a)-[:IS_A]->(p)`,
                 {
                     movieId,
                     actorId: actor.id,
@@ -72,6 +72,7 @@ async function createMovieActors(movieId, actors) {
 
         await Promise.all(queries);
         await transaction.commit();
+        console.log('Transaction committed successfully');
         return { success: true };
     } catch (error) {
         console.error('Error executing query:', error);
