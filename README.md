@@ -27,4 +27,4 @@ SESSION_SECRET=<your_secret>
 
 ## To run the program:
 Run: 
-``` npm start ´´´ 
+``` npm start ``` 
