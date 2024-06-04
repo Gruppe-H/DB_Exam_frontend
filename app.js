@@ -4,6 +4,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const multer = require('multer');
+const { spawn } = require('child_process');
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -12,9 +13,10 @@ const { connectToMSSQL, loginUser, searchMovieByTitle, updateUser } = require('.
 const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
 const { getAllMovies, getAllRegionalMovies, getMovie,
-    getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview, 
-    addMovie} = require('./controllers/moviecontroller');
+    getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview,
+    addMovie } = require('./controllers/moviecontroller');
 const { getUserReviews, getAllUsers } = require('./controllers/usercontroller');
+const { runPythonScript } = require('./controllers/aicontroller');
 
 const app = express();
 const port = 3000;
@@ -250,6 +252,37 @@ app.post('/create-movie', upload.none(), async (req, res) => {
     } else {
         res.send(`Error: ${result.message}`);
     }
+});
+
+app.get('/chatbot', (req, res) => {
+    runPythonScript('./ai/model.py', [], (err, result) => {
+        console.log("Starting chatbot");
+    });
+    res.render('chatbot', { answer: undefined });
+});
+
+app.post('/chatbot', async (req, res) => {
+    //const question = req.body
+    const question = 'What is a movie';
+    runPythonScript('./ai/model.py', [question], (err, result) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+//todo delete all this, when done:
+app.get('/factorial/:number', (req, res) => {
+    const number = req.params.number;
+    runPythonScript('./ai/compute.py', [number], (err, result) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.send(`Factorial of ${number} is ${result}`);
+        }
+    });
 });
 
 const startServer = async () => {
