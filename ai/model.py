@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
-import importlib
 import loadlib
 import utils
+import pandas as pd
 from langchain.llms import Ollama
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
@@ -15,12 +15,17 @@ app = Flask(__name__)
 # Global variables to hold the model and vectordb
 chain = None
 
-def process_documents():
+def process_movies_to_documents():
+    #df = pd.read_csv('./data/titles.csv')
     documents = []
     subject = 'Film'
     lang = 'en'
     docs = loadlib.loadWiki(subject, lang, 2)
     documents.extend(docs)
+    #titles_to_process = df['originalTitle']
+    #for title in titles_to_process:
+    #    docs = loadlib.loadWiki(title, lang, 2)
+    #    documents.extend(docs)
     return documents
 
 def create_embeddings(documents):
@@ -71,7 +76,8 @@ def create_model(vectordb):
 
 def initialize():
     global chain
-    documents = process_documents()
+    print("Started initializing model")
+    documents = process_movies_to_documents()
     vectordb = create_embeddings(documents)
     chain = create_model(vectordb)
     print("Model initialized")
