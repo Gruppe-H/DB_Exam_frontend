@@ -1,5 +1,4 @@
-import sys
-import os
+from flask import Flask, request, jsonify
 import importlib
 import loadlib
 import utils
@@ -11,8 +10,7 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.embeddings import HuggingFaceEmbeddings
 
-importlib.reload(loadlib)
-importlib.reload(utils)
+app = Flask(__name__)
 
 # Global variables to hold the model and vectordb
 chain = None
@@ -37,7 +35,7 @@ def create_embeddings(documents):
         encode_kwargs=encode_kwargs
     )
 
-    persist_directory = 'data/chroma/'
+    persist_directory = './data/chroma/'
 
     vectordb = Chroma.from_documents(
         documents=splits,
@@ -76,16 +74,15 @@ def initialize():
     documents = process_documents()
     vectordb = create_embeddings(documents)
     chain = create_model(vectordb)
+    print("Model initialized")
 
-def ask(question):
+@app.route('/chatbot', methods=['POST'])
+def ask():
     global chain
+    question = request.json.get('question')
     result = chain({"query": question})
-    return result["result"]
+    return jsonify(result["result"])
 
-if __name__ == "__main__":
-    if chain is None:
-        initialize()
-    
-    question = sys.argv[1]
-    answer = ask(question)
-    print(answer)
+if __name__ == '__main__':
+    initialize()
+    app.run(port=5003, debug=True)

@@ -255,22 +255,25 @@ app.post('/create-movie', upload.none(), async (req, res) => {
 });
 
 app.get('/chatbot', (req, res) => {
-    runPythonScript('./ai/model.py', [], (err, result) => {
-        console.log("Starting chatbot");
-    });
     res.render('chatbot', { answer: undefined });
 });
 
 app.post('/chatbot', async (req, res) => {
-    //const question = req.body
-    const question = 'What is a movie';
-    runPythonScript('./ai/model.py', [question], (err, result) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.send(result);
-        }
-    });
+    const question = req.body.question;
+    try {
+        const response = await fetch('http://localhost:5003/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question: question }),
+        });
+        const answer = await response.text();
+        res.send(answer);
+    } catch (error) {
+        console.error('Error:', error);
+        res.send('Error getting answer from model');
+    }
 });
 
 //todo delete all this, when done:

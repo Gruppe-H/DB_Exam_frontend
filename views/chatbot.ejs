@@ -10,17 +10,18 @@
 <body>
     <div class="container">
         <h1>Movie Chatbot</h1>
+        <div id="chat-box"></div>
         <form id="chat-form">
             <input type="text" name="question" id="question" placeholder="Ask me about movies..." required>
             <button type="submit">Send</button>
         </form>
-        <div id="response"></div>
     </div>
     <script>
         document.getElementById('chat-form').addEventListener('submit', function (event) {
             event.preventDefault();
 
             const question = document.getElementById('question').value;
+            document.getElementById('question').value = '';
 
             fetch('/chatbot', {
                 method: 'POST',
@@ -33,7 +34,18 @@
             })
                 .then(response => response.text())
                 .then(data => {
-                    document.getElementById('response').innerText = data;
+                    const chatBox = document.getElementById('chat-box');
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'user-message';
+                    userMessage.innerText = `You: ${question}`;
+                    chatBox.appendChild(userMessage);
+
+                    const botMessage = document.createElement('div');
+                    botMessage.className = 'bot-message';
+                    botMessage.innerText = `Bot: ${data}`;
+                    chatBox.appendChild(botMessage);
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -88,12 +100,29 @@
             background-color: #0056b3;
         }
 
-        #response {
+        #chat-box {
             margin-top: 20px;
             padding: 10px;
             background-color: #e9ecef;
             border-radius: 4px;
             color: #333;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .user-message,
+        .bot-message {
+            margin: 10px 0;
+        }
+
+        .user-message {
+            text-align: right;
+            color: #000;
+        }
+
+        .bot-message {
+            text-align: left;
+            color: #007BFF;
         }
     </style>
 </body>
