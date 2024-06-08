@@ -26,6 +26,15 @@ async function getAllRegionalMovies(region) {
     return all_movies;
 }
 
+async function getRecommendedMovies(movieIds) {
+    let movies = []
+    for (const movieId of movieIds) {
+        const movie = await getMovie(movieId);
+        movies.push(movie);
+    }
+    return movies;
+}
+
 async function getMovie(movieId) {
     let all_movies = await getAllMovies();
     return all_movies.find(m => m.id === movieId);
@@ -93,6 +102,6 @@ async function addMovie(movie, actors) {
 }
 
 module.exports = {
-    getAllMovies, getMovie, getMovieDetails, addMovie,
+    getAllMovies, getMovie, getMovieDetails, addMovie, getRecommendedMovies, 
     getMovieReviews, addMovieReview, getAllRegionalMovies, removeMovieReview
 };

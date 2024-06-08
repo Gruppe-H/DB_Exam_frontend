@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Movie Recommendations for <%= user.username %>
+        </h1>
+
+
+        <!-- Movie grid -->
+        <div class="movie-grid">
+            <% movies.forEach(movie=> { %>
+                <div class="movie-box">
+                    <a href="/movie/<%= movie.id %>">
+                        <img src="/Images/<%= movie.id %>.jpg" alt="<%= movie.primary_title %>">
+                        <h2>
+                            <%= movie.primary_title %> (<%= movie.release_date %>)
+                        </h2>
+                    </a>
+                </div>
+                <% }); %>
+        </div>
+    </div>
+</body>
+
+</html>

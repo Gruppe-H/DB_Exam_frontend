@@ -14,7 +14,8 @@ const { connectToNeo4j } = require('./databases/neo4j');
 const { connectToMongoDB, getAllRegions } = require('./databases/mongodb');
 const { getAllMovies, getAllRegionalMovies, getMovie,
     getMovieDetails, getMovieReviews, addMovieReview, removeMovieReview,
-    addMovie } = require('./controllers/moviecontroller');
+    addMovie,
+    getRecommendedMovies } = require('./controllers/moviecontroller');
 const { getUserReviews, getAllUsers } = require('./controllers/usercontroller');
 const { runPythonScript } = require('./controllers/aicontroller');
 
@@ -286,6 +287,23 @@ app.get('/factorial/:number', (req, res) => {
             res.send(`Factorial of ${number} is ${result}`);
         }
     });
+});
+
+app.get('/recommend', async (req, res) => {
+    if (req.session.user) {
+        const userId = req.session.user.user_id;
+        runPythonScript('./ai/recommend.py', [userId], async (err, result) => {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                const movieIds = JSON.parse(result)
+                const movies = await getRecommendedMovies(movieIds);
+                res.render('recommended', { movies, user: req.session.user });
+            }
+        });
+    } else {
+        res.send('You must be logged in as admin to delete a review');
+    }
 });
 
 const startServer = async () => {
